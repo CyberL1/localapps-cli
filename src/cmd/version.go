@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"localapps-cli/constants"
 	"localapps-cli/utils"
-	"os"
-	"os/exec"
-	"runtime"
 
+	"github.com/Masterminds/semver"
 	"github.com/spf13/cobra"
 )
+
+func init() {
+	rootCmd.AddCommand(versionCmd)
+}
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
@@ -17,45 +19,28 @@ var versionCmd = &cobra.Command{
 	Run:   version,
 }
 
-var upgradeCmd = &cobra.Command{
-	Use:   "upgrade",
-	Short: "Upgrades your CLI version",
-	Run:   upgrade,
-}
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
-	versionCmd.AddCommand(upgradeCmd)
-}
-
 func version(cmd *cobra.Command, args []string) {
-	latestRelease, _ := utils.GetLatestCliVersion()
-
-	if constants.Version < latestRelease.TagName {
-		fmt.Println("A new update is avaliable")
-		fmt.Println("Run 'localapps version upgrade' to upgrade")
-	}
-	fmt.Println("Your CLI Version:", constants.Version)
-	fmt.Println("Latest CLI version:", latestRelease.TagName)
-}
-
-func upgrade(cmd *cobra.Command, args []string) {
-	var command string
-	var cmdArgs []string
-
-	switch runtime.GOOS {
-	case "linux", "darwin":
-		command = "sh"
-		cmdArgs = []string{"-c", "curl -fsSL https://raw.githubusercontent.com/CyberL1/localapps/main/scripts/get.sh | sh"}
-
-	case "windows":
-		command = "powershell"
-		cmdArgs = []string{"irm https://raw.githubusercontent.com/CyberL1/localapps/main/scripts/get.ps1 | iex"}
+	latestRelease, err := utils.GetLatestCliVersion()
+	if err != nil {
+		fmt.Println("Failed to get latest release", err)
+		return
 	}
 
-	execCmd := exec.Command(command, cmdArgs...)
-	execCmd.Stderr = os.Stderr
-	execCmd.Stdin = os.Stdin
-	execCmd.Stdout = os.Stdout
-	execCmd.Run()
+	currentVersion, err := semver.NewVersion(constants.Version)
+	if err != nil {
+		fmt.Println("Failed to parse current version", err)
+		return
+	}
+
+	newVersion, err := semver.NewVersion(latestRelease.TagName)
+	if err != nil {
+		fmt.Println("Failed to parse latest version", err)
+		return
+	}
+
+	if currentVersion.LessThan(newVersion) {
+		fmt.Println("A new update is available\nRun 'localapps-cli upgrade' to upgrade")
+	}
+
+	fmt.Printf("Your CLI Version: %s\nLatest CLI version: %s\n", constants.Version, latestRelease.TagName)
 }
