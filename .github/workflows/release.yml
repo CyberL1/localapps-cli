@@ -36,7 +36,7 @@ jobs:
         run: |
           export GOOS=${{ matrix.os }}
           export GOARCH=${{ matrix.arch }}
-          go build -ldflags "-s -w -X localapps-cli/constants.Version=${{ env.RELEASE_VERSION }}" -o localapps-cli-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
+          go build -ldflags "-s -w -X localapps-cli/constants.Version=${{ env.RELEASE_VERSION }}" -o ../localapps-cli-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
       - name: Create release
         uses: ncipollo/release-action@v1.15.0
         with:
