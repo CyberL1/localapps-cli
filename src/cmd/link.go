@@ -17,8 +17,8 @@ func init() {
 
 var linkCmd = &cobra.Command{
 	Use:   "link [url]",
-	Short: "Allows you to link the CLI with the server.",
-	Long:  "Allows you to link the CLI with the server. If no URL is provided, it will use saved url from config.",
+	Short: "Link the CLI with the server.",
+	Long:  "Link the CLI with the server. If no URL is provided, it will use saved URL from config.",
 	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		urlToLink := utils.CliConfig.Server.Url

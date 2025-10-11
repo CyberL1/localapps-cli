@@ -15,7 +15,7 @@ func init() {
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Displays your CLI version",
+	Short: "Check the CLI version",
 	Run:   version,
 }
 
