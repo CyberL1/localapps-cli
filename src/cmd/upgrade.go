@@ -4,12 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"localapps-cli/constants"
 	"localapps-cli/utils"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 
+	"github.com/Masterminds/semver"
 	"github.com/spf13/cobra"
 )
 
@@ -21,9 +23,26 @@ var upgradeCmd = &cobra.Command{
 	Use:   "upgrade",
 	Short: "Upgrades your CLI version",
 	Run: func(cmd *cobra.Command, args []string) {
-		_, err := utils.GetLatestCliVersion()
+		latestRelease, err := utils.GetLatestCliVersion()
 		if err != nil {
 			fmt.Println("Could not get latest release:", err)
+			return
+		}
+
+		currentVersion, err := semver.NewVersion(constants.Version)
+		if err != nil {
+			fmt.Println("Failed to parse current version", err)
+			return
+		}
+
+		newVersion, err := semver.NewVersion(latestRelease.TagName)
+		if err != nil {
+			fmt.Println("Failed to parse latest version", err)
+			return
+		}
+
+		if currentVersion.Equal(newVersion) || currentVersion.GreaterThan(newVersion) {
+			fmt.Println("You're already at the latest version, no need to upgrade")
 			return
 		}
 
