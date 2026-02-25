@@ -245,7 +245,8 @@ var deployCmd = &cobra.Command{
 			fmt.Printf("[Error -> %s] %s\n\n", bodyJson.Code, bodyJson.Message)
 			fmt.Println(bodyJson.Error.Error())
 		} else {
-			fmt.Println("\nApp deployed. Find it on the server:", utils.CliConfig.Server.Url)
+			appURL, _ := url.Parse(serverUrlParsed.Scheme + "://" + appId + "." + serverUrlParsed.Host)
+			fmt.Println("\nApp deployed. It can be accessed under this URL:", appURL)
 		}
 	},
 }
